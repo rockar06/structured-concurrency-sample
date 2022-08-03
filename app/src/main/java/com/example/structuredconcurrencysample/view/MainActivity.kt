@@ -12,8 +12,22 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val sectionAdapter = MainAdapter {
-
+        when (it) {
+            SectionType.TOP -> {
+                resetItem(0, it)
+                viewModel.requestTopData()
+            }
+            SectionType.MIDDLE -> {
+                resetItem(1, it)
+                viewModel.requestMiddleData()
+            }
+            SectionType.BOTTOM -> {
+                resetItem(2, it)
+                viewModel.requestBottomData()
+            }
+        }
     }
+
     private var listOfSections = mutableListOf(
         Section(type = SectionType.TOP),
         Section(type = SectionType.MIDDLE),
@@ -56,6 +70,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         binding.rvItems.adapter = sectionAdapter
+        sectionAdapter.submitList(listOfSections)
+    }
+
+    private fun resetItem(position: Int, sectionType: SectionType) {
+        listOfSections = listOfSections.toMutableList().apply {
+            set(position, Section(type = sectionType))
+        }
         sectionAdapter.submitList(listOfSections)
     }
 }

@@ -3,8 +3,7 @@ package com.example.structuredconcurrencysample.data
 data class Section(
     var type: SectionType = SectionType.TOP,
     var isLoading: Boolean = true,
-    var title: String? = null,
-    var errorMessage: String? = null,
+    var title: String? = null
 )
 
 
