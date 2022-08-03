@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">StructuredConcurrencySample</string>
+    <string name="refresh_content">Refresh content</string>
+</resources>
