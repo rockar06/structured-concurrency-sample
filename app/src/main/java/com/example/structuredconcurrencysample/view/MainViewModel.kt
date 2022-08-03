@@ -1,10 +1,11 @@
 package com.example.structuredconcurrencysample.view
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.structuredconcurrencysample.data.Section
 import com.example.structuredconcurrencysample.data.SectionRepository
 import com.example.structuredconcurrencysample.data.SectionType
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlin.system.measureTimeMillis
 
 class MainViewModel(
@@ -18,12 +19,24 @@ class MainViewModel(
     private val innerBottomSection = MutableLiveData<Section>()
     val bottomSection: LiveData<Section> = innerBottomSection
 
+    private val coroutineExceptionHandler =
+        CoroutineExceptionHandler { _, throwable ->
+            when (throwable) {
+                is RuntimeException -> {
+                    println("Share the error in the view")
+                    //getErrorSection
+                }
+                else -> Log.e("MainViewModel", "Unknown error!")
+            }
+        }
+
     fun requestData() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             val time = measureTimeMillis {
-                requestBackgroundTopData()
-                requestBackgroundMiddleData()
-                requestBackgroundBottomData()
+                val topSection = requestTopDataAsync()
+                val middleSection = requestMiddleDataAsync()
+                val bottomSection = requestBottomDataAsync()
+                awaitAll(topSection, middleSection, bottomSection)
             }
             println("Completed in $time ms")
         }
@@ -31,45 +44,42 @@ class MainViewModel(
 
     fun requestTopData() {
         viewModelScope.launch {
-            requestBackgroundTopData()
+            requestTopDataAsync().await()
         }
     }
 
-    private suspend fun requestBackgroundTopData() {
-        try {
-            innerTopSection.value = repository.getTopPost()
-        } catch (e: Exception) {
-            innerTopSection.value = getErrorSection(SectionType.TOP)
+    private fun requestTopDataAsync(): Deferred<Unit> =
+        viewModelScope.async(coroutineExceptionHandler) {
+            repository.getTopPost().apply {
+                innerTopSection.value = this
+            }
         }
-    }
 
     fun requestMiddleData() {
         viewModelScope.launch {
-            requestBackgroundMiddleData()
+            requestMiddleDataAsync().await()
         }
     }
 
-    private suspend fun requestBackgroundMiddleData() {
-        try {
-            innerMiddleSection.value = repository.getMiddlePost()
-        } catch (e: Exception) {
-            innerMiddleSection.value = getErrorSection(SectionType.MIDDLE)
+    private fun requestMiddleDataAsync(): Deferred<Unit> =
+        viewModelScope.async(coroutineExceptionHandler) {
+            repository.getMiddlePost().apply {
+                innerMiddleSection.value = this
+            }
         }
-    }
 
     fun requestBottomData() {
         viewModelScope.launch {
-            requestBackgroundBottomData()
+            requestBottomDataAsync().await()
         }
     }
 
-    private suspend fun requestBackgroundBottomData() {
-        try {
-            innerBottomSection.value = repository.getBottomPost()
-        } catch (e: Exception) {
-            innerMiddleSection.value = getErrorSection(SectionType.BOTTOM)
+    private fun requestBottomDataAsync(): Deferred<Unit> =
+        viewModelScope.async(coroutineExceptionHandler) {
+            repository.getBottomPost().apply {
+                innerBottomSection.value = this
+            }
         }
-    }
 
     private fun getErrorSection(type: SectionType): Section {
         return Section(type = type, isLoading = false, title = "Sorry! Try again.")
