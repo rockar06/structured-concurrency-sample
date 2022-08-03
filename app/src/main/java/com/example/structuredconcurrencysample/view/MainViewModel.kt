@@ -43,39 +43,39 @@ class MainViewModel(
     }
 
     fun requestTopData() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             requestTopDataAsync().await()
         }
     }
 
     private fun requestTopDataAsync(): Deferred<Unit> =
-        viewModelScope.async(coroutineExceptionHandler) {
+        viewModelScope.async {
             repository.getTopPost().apply {
                 innerTopSection.value = this
             }
         }
 
     fun requestMiddleData() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             requestMiddleDataAsync().await()
         }
     }
 
     private fun requestMiddleDataAsync(): Deferred<Unit> =
-        viewModelScope.async(coroutineExceptionHandler) {
+        viewModelScope.async {
             repository.getMiddlePost().apply {
                 innerMiddleSection.value = this
             }
         }
 
     fun requestBottomData() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             requestBottomDataAsync().await()
         }
     }
 
     private fun requestBottomDataAsync(): Deferred<Unit> =
-        viewModelScope.async(coroutineExceptionHandler) {
+        viewModelScope.async {
             repository.getBottomPost().apply {
                 innerBottomSection.value = this
             }
