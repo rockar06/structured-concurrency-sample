@@ -2,9 +2,7 @@ package com.example.structuredconcurrencysample.view
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.structuredconcurrencysample.data.Section
-import com.example.structuredconcurrencysample.data.SectionRepository
-import com.example.structuredconcurrencysample.data.SectionType
+import com.example.structuredconcurrencysample.data.*
 import kotlinx.coroutines.*
 import kotlin.system.measureTimeMillis
 
@@ -22,9 +20,14 @@ class MainViewModel(
     private val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
             when (throwable) {
-                is RuntimeException -> {
-                    println("Share the error in the view")
-                    //getErrorSection
+                is TopSectionException -> {
+                    innerTopSection.value = getErrorSection(SectionType.TOP)
+                }
+                is MiddleSectionException -> {
+                    innerMiddleSection.value = getErrorSection(SectionType.MIDDLE)
+                }
+                is BottomSectionException -> {
+                    innerBottomSection.value = getErrorSection(SectionType.BOTTOM)
                 }
                 else -> Log.e("MainViewModel", "Unknown error!")
             }
