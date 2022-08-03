@@ -21,9 +21,9 @@ class MainViewModel(
     fun requestData() {
         viewModelScope.launch {
             val time = measureTimeMillis {
-                innerTopSection.value = repository.getTopPost()
-                innerMiddleSection.value = repository.getMiddlePost()
-                innerBottomSection.value = repository.getBottomPost()
+                requestBackgroundTopData()
+                requestBackgroundMiddleData()
+                requestBackgroundBottomData()
             }
             println("Completed in $time ms")
         }
@@ -31,31 +31,43 @@ class MainViewModel(
 
     fun requestTopData() {
         viewModelScope.launch {
-            try {
-                innerTopSection.value = repository.getTopPost()
-            } catch (e: Exception) {
-                innerTopSection.value = getErrorSection(SectionType.TOP)
-            }
+            requestBackgroundTopData()
+        }
+    }
+
+    private suspend fun requestBackgroundTopData() {
+        try {
+            innerTopSection.value = repository.getTopPost()
+        } catch (e: Exception) {
+            innerTopSection.value = getErrorSection(SectionType.TOP)
         }
     }
 
     fun requestMiddleData() {
         viewModelScope.launch {
-            try {
-                innerMiddleSection.value = repository.getMiddlePost()
-            } catch (e: Exception) {
-                innerMiddleSection.value = getErrorSection(SectionType.MIDDLE)
-            }
+            requestBackgroundMiddleData()
+        }
+    }
+
+    private suspend fun requestBackgroundMiddleData() {
+        try {
+            innerMiddleSection.value = repository.getMiddlePost()
+        } catch (e: Exception) {
+            innerMiddleSection.value = getErrorSection(SectionType.MIDDLE)
         }
     }
 
     fun requestBottomData() {
         viewModelScope.launch {
-            try {
-                innerBottomSection.value = repository.getBottomPost()
-            } catch (e: Exception) {
-                innerMiddleSection.value = getErrorSection(SectionType.BOTTOM)
-            }
+            requestBackgroundBottomData()
+        }
+    }
+
+    private suspend fun requestBackgroundBottomData() {
+        try {
+            innerBottomSection.value = repository.getBottomPost()
+        } catch (e: Exception) {
+            innerMiddleSection.value = getErrorSection(SectionType.BOTTOM)
         }
     }
 
